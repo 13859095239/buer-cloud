@@ -1,0 +1,24 @@
+package com.buer.flow.api.query;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import lombok.experimental.Accessors;
+
+/**
+ * 实例 Query
+ *
+ * @author zoulan
+ * @since 2023-05-11
+ */
+@Data
+@Accessors(chain = true)
+@Schema(description = "实例Query")
+public class ProcinstQuery extends ProcinstForMyQuery {
+
+    /**
+     * 办理人
+     */
+    @Schema(description = "办理人")
+    private String assignee;
+
+}

@@ -1,0 +1,3 @@
+com.buer.common.core.config.JacksonConfiguration
+com.buer.common.core.config.RestTemplateConfiguration
+com.buer.common.core.config.ControllerAdviceConfiguration

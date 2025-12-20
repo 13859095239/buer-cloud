@@ -1,0 +1,10 @@
+# 项目排除路径
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+# 编译输出
+/out/
+target/
+build/

@@ -1,0 +1,21 @@
+# rocketmq 配置
+spring:
+  cloud:
+    function:
+      definition: demo
+    stream:
+      # rocketmq 配置
+      rocketmq:
+        binder:
+          group: group1
+      bindings:
+        demo-out-0:
+          content-type: application/json
+          destination: stream-test-topic
+          group: test-group11
+          binder: rocketmq
+        demo-in-0:
+          content-type: application/json
+          destination: stream-test-topic
+          group: test-group2
+          binder: rocketmq

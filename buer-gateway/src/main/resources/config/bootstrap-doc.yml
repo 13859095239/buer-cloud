@@ -1,0 +1,25 @@
+knife4j:
+  gateway:
+    enabled: true
+    # 指定服务发现的模式聚合微服务文档
+    strategy: discover
+    discover:
+      enabled: true
+      # 指定版本号(Swagger2|OpenAPI3)
+      version: openapi3
+      # 需要排除的微服务(eg:网关服务)
+      excluded-services:
+        - buer-gateway-server
+        - buer-seata-server
+        - buer-auth-server
+      # 各个聚合服务的个性化配置，key:注册中心中的服务名称，value：个性化配置
+      service-config:
+        buer-system-server:
+          group-name: 系统服务
+          order: 1
+        buer-flow-server:
+          group-name: 流程服务
+          order: 2
+        buer-resource-server:
+          group-name: 资源服务
+          order: 3

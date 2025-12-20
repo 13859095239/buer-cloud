@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.buer.flow.biz.mapper.ActExtCategoryMapper">
+
+    <sql id="sql">
+        select t.*
+        from act_ext_category t
+    </sql>
+    <select id="getModelCategoryById" resultType="com.buer.flow.api.entity.ActExtCategory">
+        <include refid="sql"/>
+        where t.id = #{id}
+    </select>
+    <select id="getModelCategoryPage" resultType="com.buer.flow.api.entity.ActExtCategory">
+        <include refid="sql"/>
+    </select>
+    <select id="listModelCategorys" resultType="com.buer.flow.api.entity.ActExtCategory">
+        <include refid="sql"/>
+    </select>
+</mapper>

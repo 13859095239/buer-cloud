@@ -1,0 +1,2 @@
+com.buer.common.security.config.SaTokenConfig
+com.buer.common.security.service.SaPermissionImpl

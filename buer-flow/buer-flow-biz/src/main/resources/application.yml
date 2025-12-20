@@ -1,0 +1,36 @@
+spring:
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    deserialization:
+      fail-on-unknown-properties: false
+    parser:
+      ALLOW_UNQUOTED_FIELD_NAMES: true #是否允许出现字段名不带引号
+      ALLOW_SINGLE_QUOTES: true # 是否允许出现单引号,默认false
+  application:
+    name: @artifactId@
+  profiles:
+    active: ${CONFIG_ACTIVE:dev}
+  cloud:
+    nacos:
+      server-addr: ${NACOS_HOST:buer-nacos}:${NACOS_PORT:8848}
+      discovery:
+        namespace: buer-cloud-${spring.profiles.active}
+      config:
+        namespace: buer-cloud-${spring.profiles.active}
+        file-extension: yml
+  config:
+    import:
+      - classpath:./config/bootstrap-mq.yml
+      - optional:nacos:application.yml
+      - optional:nacos:${spring.application.name}.yml
+flowable:
+  cmmn:
+    enabled: false
+  app:
+    enabled: false
+  dmn:
+    enabled: false
+logging:
+  level:
+    org.flowable.engine.impl.persistence.entity: trace

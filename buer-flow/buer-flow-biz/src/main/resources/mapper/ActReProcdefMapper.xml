@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.buer.flow.biz.mapper.ActReProcdefMapper">
+
+    <sql id="sql">
+        select t.*,
+               t2.deploy_time_ as deployTime,
+               t3.name_        as modelName,
+               t3.id_          as modelId
+        from act_re_procdef t
+                 left join act_re_deployment t2 on t.deployment_id_ = t2.id_
+                 left join act_re_model t3
+                           ON t.key_ = t3.key_
+    </sql>
+    <sql id="whereSql">
+        <where>
+            <if test="query.modelKey!= null and query.modelKey != ''">
+                and t.key_ = #{query.modelKey}
+            </if>
+        </where>
+    </sql>
+    <select id="getProcessDefinitionById" resultType="com.buer.flow.api.vo.ProcessDefinitionVO">
+        <include refid="sql"/>
+        where t.id_ = #{id}
+    </select>
+    <select id="getProcessDefinitionPage" resultType="com.buer.flow.api.vo.ProcessDefinitionVO">
+        <include refid="sql"/>
+        <include refid="whereSql"/>
+        order by t.version_ desc
+    </select>
+    <select id="listProcessDefinitions" resultType="com.buer.flow.api.vo.ProcessDefinitionVO">
+        <include refid="sql"/>
+        <include refid="whereSql"/>
+        order by t.version_ desc
+    </select>
+</mapper>

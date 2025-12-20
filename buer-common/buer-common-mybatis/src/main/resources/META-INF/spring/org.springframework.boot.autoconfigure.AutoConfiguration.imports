@@ -1,0 +1,2 @@
+com.buer.common.mybatis.config.MyBatisFlexConfiguration
+com.buer.common.mybatis.config.WebMvcConfiguration

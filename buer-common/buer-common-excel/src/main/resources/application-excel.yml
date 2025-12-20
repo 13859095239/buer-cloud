@@ -1,0 +1,26 @@
+# Excel配置示例
+excel:
+  # 最大文件大小（MB）
+  max-file-size: 10
+  # 最大导入行数
+  max-import-rows: 1000
+  # 默认工作表名称
+  default-sheet-name: "数据"
+  # 是否启用数据验证
+  enable-validation: true
+  # 是否启用事务
+  enable-transaction: true
+  # 支持的Excel文件格式
+  supported-formats:
+    - ".xlsx"
+    - ".xls"
+  # 默认日期格式
+  default-date-format: "yyyy-MM-dd HH:mm:ss"
+  # 默认数字格式
+  default-number-format: "#,##0.00"
+  # 是否启用自动列宽
+  auto-column-width: true
+  # 默认列宽
+  default-column-width: 20
+  # 默认行高
+  default-row-height: 20

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.buer</groupId>
+        <artifactId>buer-cloud</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>buer-common</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>buer-common-bom</module>
+        <module>buer-common-biz</module>
+        <module>buer-common-core</module>
+        <module>buer-common-mybatis</module>
+        <module>buer-common-redis</module>
+        <module>buer-common-sentinel</module>
+        <module>buer-common-sensitive</module>
+        <module>buer-common-doc</module>
+        <module>buer-common-feign</module>
+        <module>buer-common-security</module>
+        <module>buer-common-log</module>
+        <module>buer-common-excel</module>
+        <module>buer-common-seata</module>
+        <module>buer-common-oss</module>
+        <module>buer-common-mq</module>
+        <module>buer-common-job</module>
+    </modules>
+</project>

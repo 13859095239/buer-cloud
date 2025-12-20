@@ -1,0 +1,5 @@
+#com.buer.system.api.feign.RemoteClientDetailsService
+#feign.com.buer.system.api.RemoteUserService
+#feign.com.buer.system.api.RemoteRoleService
+com.buer.system.api.filler.UserLabelFiller
+com.buer.system.api.filler.DictLabelFiller

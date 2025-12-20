@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.buer.flow.biz.mapper.ActExtCcMapper">
+
+    <sql id="sql">
+        select t.*
+        from act_ext_cc t
+    </sql>
+    <select id="getCcById" resultType="com.buer.flow.api.vo.CcVO">
+        <include refid="sql"/>
+        where t.id = #{id}
+    </select>
+    <select id="getDoCcPage" resultType="com.buer.flow.api.vo.CcVO">
+        <include refid="sql"/>
+        where t.end_time is null
+    </select>
+    <select id="getDoneCcPage" resultType="com.buer.flow.api.vo.CcVO">
+        <include refid="sql"/>
+        where t.end_time is not null
+    </select>
+    <select id="listCcs" resultType="com.buer.flow.api.vo.CcVO">
+        <include refid="sql"/>
+    </select>
+</mapper>

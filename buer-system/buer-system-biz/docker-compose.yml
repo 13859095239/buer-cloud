@@ -1,0 +1,11 @@
+version: "2.7"
+services:
+  buer-system-biz:
+    image: buer-system-biz:latest
+    ports:
+      - 10003:10003
+    restart: always
+    hostname: buer-system-biz
+    container_name: buer-system-biz
+    environment:
+      - config-active=dev

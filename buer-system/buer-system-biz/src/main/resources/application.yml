@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: @artifactId@
+  profiles:
+    active: ${CONFIG_ACTIVE:dev}
+  cloud:
+    nacos:
+      server-addr: ${NACOS_HOST:buer-nacos}:${NACOS_PORT:8848}
+      discovery:
+        namespace: buer-cloud-${spring.profiles.active}
+      config:
+        namespace: buer-cloud-${spring.profiles.active}
+        file-extension: yml
+  config:
+    import:
+      - classpath:./config/bootstrap-mq.yml
+      - optional:nacos:application.yml
+      - optional:nacos:${spring.application.name}.yml
