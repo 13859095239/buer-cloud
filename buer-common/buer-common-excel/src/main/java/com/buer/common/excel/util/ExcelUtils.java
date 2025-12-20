@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 
 /**
  * Excel工具类
- * 基于EasyExcel 4.x版本，集成Hutool工具类
+ * 基于EasyExcel
  * 提供Excel导入导出的通用方法
  *
  * @author zoulan
@@ -48,40 +48,17 @@ public class ExcelUtils {
      * @param <T>      数据类型
      */
     public <T> void exportExcel(HttpServletResponse response, String fileName, List<T> data, Class<T> clazz) {
-        try {
-            // 设置响应头
-            setResponseHeaders(response, fileName);
-
-            // 创建Excel写入器
-            ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream(), clazz)
-                .build();
-
-            // 创建工作表
-            WriteSheet writeSheet = EasyExcel.writerSheet(excelConfig.getDefaultSheetName())
-                .build();
-
-            // 写入数据
-            excelWriter.write(data, writeSheet);
-
-            // 关闭写入器
-            excelWriter.finish();
-
-            log.info("Excel导出成功，文件名：{}，数据行数：{}", fileName, data.size());
-
-        } catch (IOException e) {
-            log.error("Excel导出失败，文件名：{}，错误信息：{}", fileName, e.getMessage(), e);
-            throw new RuntimeException("Excel导出失败：" + e.getMessage(), e);
-        }
+        exportExcel(response, fileName, data, clazz, null);
     }
 
     /**
-     * 导出Excel到响应流（带自定义处理）
+     * 导出Excel到响应流（支持自定义处理）
      *
      * @param response HTTP响应对象
      * @param fileName 文件名（不包含扩展名）
      * @param data     数据列表
      * @param clazz    数据类
-     * @param consumer 自定义处理函数
+     * @param consumer 自定义处理函数（可选）
      * @param <T>      数据类型
      */
     public <T> void exportExcel(HttpServletResponse response, String fileName, List<T> data,
@@ -89,19 +66,22 @@ public class ExcelUtils {
         try {
             // 设置响应头
             setResponseHeaders(response, fileName);
-
-            // 创建Excel写入器
+            // 这个策略是 头是头的样式 内容是内容的样式 其他的策略可以自己实现
+            // 创建Excel写入器，注册表头样式策略
             ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream(), clazz)
+                .registerWriteHandler(ExcelStyleUtils.createCellStyleStrategy())
                 .build();
 
-            // 执行自定义处理
+            // 执行自定义处理（如果提供）
             if (consumer != null) {
                 consumer.accept(excelWriter);
             }
 
-            // 创建工作表并写入数据
+            // 创建工作表
             WriteSheet writeSheet = EasyExcel.writerSheet(excelConfig.getDefaultSheetName())
                 .build();
+
+            // 写入数据
             excelWriter.write(data, writeSheet);
 
             // 关闭写入器
@@ -184,8 +164,9 @@ public class ExcelUtils {
             // 设置响应头
             setResponseHeaders(response, fileName + "_模板");
 
-            // 创建Excel写入器
+            // 创建Excel写入器，注册表头样式策略
             ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream(), clazz)
+                .registerWriteHandler(ExcelStyleUtils.createCellStyleStrategy())
                 .build();
 
             // 创建工作表

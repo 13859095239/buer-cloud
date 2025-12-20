@@ -19,100 +19,86 @@ import java.time.LocalDateTime;
 public class UserExportVO implements Serializable {
 
     /**
-     * 用户ID
-     */
-    @Schema(description = "用户ID")
-    @ExcelProperty(value = "用户ID", index = 0)
-    private Long id;
-
-    /**
      * 用户名
      */
     @Schema(description = "用户名")
-    @ExcelProperty(value = "用户名", index = 1)
+    @ExcelProperty("用户名")
     private String username;
 
     /**
      * 姓名
      */
     @Schema(description = "姓名")
-    @ExcelProperty(value = "姓名", index = 2)
+    @ExcelProperty("姓名")
     private String nickname;
 
     /**
      * 部门名称
      */
     @Schema(description = "部门名称")
-    @ExcelProperty(value = "部门名称", index = 3)
+    @ExcelProperty("部门名称")
     private String deptName;
 
     /**
      * 性别
      */
     @Schema(description = "性别")
-    @ExcelProperty(value = "性别", index = 4)
+    @ExcelProperty("性别")
     private String gender;
 
     /**
      * 手机号
      */
     @Schema(description = "手机号")
-    @ExcelProperty(value = "手机号", index = 5)
+    @ExcelProperty("手机号")
     private String phone;
 
     /**
      * 办公电话
      */
     @Schema(description = "办公电话")
-    @ExcelProperty(value = "办公电话", index = 6)
+    @ExcelProperty("办公电话")
     private String officeNumber;
 
     /**
      * 邮箱
      */
     @Schema(description = "邮箱")
-    @ExcelProperty(value = "邮箱", index = 7)
+    @ExcelProperty("邮箱")
     private String email;
 
     /**
      * 是否系统管理员
      */
     @Schema(description = "是否系统管理员")
-    @ExcelProperty(value = "是否系统管理员", index = 8)
+    @ExcelProperty("是否系统管理员")
     private String adminFlag;
 
     /**
      * 锁定状态
      */
     @Schema(description = "锁定状态")
-    @ExcelProperty(value = "锁定状态", index = 9)
+    @ExcelProperty("锁定状态")
     private String lockFlag;
 
     /**
      * 岗位名称
      */
     @Schema(description = "岗位名称")
-    @ExcelProperty(value = "岗位名称", index = 10)
+    @ExcelProperty("岗位名称")
     private String postNames;
 
     /**
      * 创建时间
      */
     @Schema(description = "创建时间")
-    @ExcelProperty(value = "创建时间", index = 11)
+    @ExcelProperty("创建时间")
     private LocalDateTime createTime;
-
-    /**
-     * 最后修改密码时间
-     */
-    @Schema(description = "最后修改密码时间")
-    @ExcelProperty(value = "最后修改密码时间", index = 12)
-    private LocalDateTime lastChangePasswordTime;
 
     /**
      * 备注
      */
     @Schema(description = "备注")
-    @ExcelProperty(value = "备注", index = 13)
+    @ExcelProperty("备注")
     private String remark;
 }
