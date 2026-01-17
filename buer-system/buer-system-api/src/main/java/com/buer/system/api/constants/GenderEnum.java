@@ -6,29 +6,24 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 菜单类型
+ * 性别
  *
  * @author zoulan
- * @since 2023-06-08
+ * @since 2026-01-07
  */
 @Getter
 @AllArgsConstructor
-public enum MenuTypeEnum implements BaseEnum<String> {
+public enum GenderEnum implements BaseEnum<String> {
 
     /**
      * 目录
      */
-    PATH("0", "目录"),
+    MAN("0", "男"),
 
     /**
      * 菜单
      */
-    MENU("1", "菜单"),
-
-    /**
-     * 权限
-     */
-    PERMISSION("2", "权限");
+    WOMAN("1", "女");
 
     /**
      * 枚举值
