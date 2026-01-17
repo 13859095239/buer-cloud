@@ -9,6 +9,7 @@ import cn.hutool.core.util.StrUtil;
 import com.buer.common.core.constant.CacheConstants;
 import com.buer.common.core.util.StringUtils;
 import com.buer.common.core.util.U;
+import com.buer.common.core.vo.ImportResultVO;
 import com.buer.common.excel.util.SimpleExcelUtils;
 import com.buer.common.redis.util.CacheUtils;
 import com.buer.common.security.util.SecurityUtils;
@@ -397,14 +398,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      */
     @Override
     public void exportUser(HttpServletResponse response, UserQuery userQuery) {
-        try {
-            List<UserExportVO> exportList = getQueryChainByQuery(userQuery).listAs(UserExportVO.class);
-            simpleExcelUtils.exportExcel(response, "用户数据", exportList, UserExportVO.class);
-            log.info("用户数据导出成功，导出数量：{}", exportList.size());
-        } catch (Exception e) {
-            log.error("用户数据导出失败，错误信息：{}", e.getMessage(), e);
-            throw new RuntimeException("用户数据导出失败：" + e.getMessage(), e);
-        }
+        List<UserExportVO> exportList = getQueryChainByQuery(userQuery).listAs(UserExportVO.class);
+        simpleExcelUtils.exportExcel(response, "用户数据", exportList, UserExportVO.class);
     }
 
     /**
@@ -415,17 +410,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      */
     @Override
     @Transactional
-    public String importUser(MultipartFile file) {
+    public ImportResultVO importUser(MultipartFile file) {
         try {
             // 1. 使用Excel工具类读取数据
             List<UserImportDTO> importList = simpleExcelUtils.readExcel(file, UserImportDTO.class);
             if (importList.isEmpty()) {
-                return "导入文件为空，请检查文件内容";
+                return new ImportResultVO(0, 0, 0, null);
             }
             // 2. 业务数据验证和处理
             int successCount = 0;
             int failCount = 0;
-            StringBuilder errorMsg = new StringBuilder();
+            List<ImportResultVO.ImportErrorVO> errorList = new ArrayList<>();
 
             for (int i = 0; i < importList.size(); i++) {
                 UserImportDTO importDTO = importList.get(i);
@@ -439,11 +434,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
                 } catch (Exception e) {
                     failCount++;
-                    errorMsg.append("第")
-                        .append(i + 2)
-                        .append("行：")
-                        .append(e.getMessage())
-                        .append("；");
+                    ImportResultVO.ImportErrorVO error = new ImportResultVO.ImportErrorVO(
+                        i + 2, null, e.getMessage(), null
+                    );
+                    errorList.add(error);
 
                     log.warn("用户导入失败，行号：{}，数据：{}，错误：{}",
                         i + 2, importDTO.getUsername(), e.getMessage());
@@ -451,10 +445,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             }
 
             // 3. 返回导入结果
-            String result = String.format("导入完成，成功：%d条，失败：%d条", successCount, failCount);
-            if (failCount > 0) {
-                result += "。失败详情：" + errorMsg.toString();
-            }
+            int total = successCount + failCount;
+            ImportResultVO result = new ImportResultVO(
+                total,
+                successCount,
+                failCount,
+                errorList.isEmpty() ? null : errorList
+            );
 
             log.info("用户数据导入完成，成功：{}条，失败：{}条", successCount, failCount);
             return result;
@@ -465,23 +462,4 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
     }
 
-    /**
-     * 下载用户导入模板
-     *
-     * @param response HTTP响应对象
-     */
-    @Override
-    public void downloadUserTemplate(HttpServletResponse response) {
-        try {
-            // 使用Excel工具类下载模板
-            simpleExcelUtils.downloadTemplate(response, "用户导入模板", UserImportDTO.class);
-            log.info("用户导入模板下载成功");
-        } catch (IllegalArgumentException e) {
-            log.error("用户导入模板下载参数错误：{}", e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            log.error("用户导入模板下载失败，错误信息：{}", e.getMessage(), e);
-            throw new RuntimeException("用户导入模板下载失败：" + e.getMessage(), e);
-        }
-    }
 }

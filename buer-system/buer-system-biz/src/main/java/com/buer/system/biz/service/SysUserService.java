@@ -11,6 +11,7 @@ import com.buer.system.api.vo.UserForLoginVO;
 import com.buer.system.api.vo.UserInfoVO;
 import com.buer.system.api.vo.UserLabelVO;
 import com.buer.system.api.vo.UserVO;
+import com.buer.common.core.vo.ImportResultVO;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.service.IService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -140,13 +141,6 @@ public interface SysUserService extends IService<SysUser> {
      * @param file 上传的Excel文件
      * @return 导入结果信息
      */
-    String importUser(MultipartFile file);
-
-    /**
-     * 下载用户导入模板
-     *
-     * @param response HTTP响应对象
-     */
-    void downloadUserTemplate(HttpServletResponse response);
+    ImportResultVO importUser(MultipartFile file);
 
 }

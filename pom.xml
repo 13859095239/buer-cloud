@@ -74,7 +74,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <version>3.5.3</version>
+            <version>3.5.9</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -135,7 +135,7 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>3.5.3</version>
+                    <version>3.5.9</version>
                     <configuration>
                         <finalName>${project.build.finalName}</finalName>
                     </configuration>

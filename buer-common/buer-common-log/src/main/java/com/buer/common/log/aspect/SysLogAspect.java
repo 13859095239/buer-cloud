@@ -9,9 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 /**
  * 操作日志使用 Aspect
@@ -21,7 +22,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
  */
 @Slf4j
 @Aspect
-@AutoConfiguration
+@Component
 public class SysLogAspect implements ApplicationEventPublisherAware {
 
     private ApplicationEventPublisher publisher;
@@ -54,7 +55,7 @@ public class SysLogAspect implements ApplicationEventPublisherAware {
     }
 
     @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+    public void setApplicationEventPublisher(@NonNull ApplicationEventPublisher applicationEventPublisher) {
         this.publisher = applicationEventPublisher;
     }
 }

@@ -5,6 +5,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import com.buer.common.core.entity.R;
+import com.buer.common.core.vo.ImportResultVO;
+import com.buer.common.excel.util.SimpleExcelUtils;
 import com.buer.common.log.annotation.SysLog;
 import com.buer.common.security.util.SecurityUtils;
 import com.buer.system.api.dto.*;
@@ -23,14 +25,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 用户 Controller
@@ -46,6 +47,7 @@ import java.util.Map;
 public class SysUserController {
     private static final PasswordEncoder ENCODER = new BCryptPasswordEncoder(12);
     private final SysUserService service;
+    private final SimpleExcelUtils simpleExcelUtils;
 
     /**
      * 通过id查询用户
@@ -246,25 +248,6 @@ public class SysUserController {
     }
 
     /**
-     * 文件上传接口
-     * 用于Excel导入组件的文件上传
-     *
-     * @param file 上传的Excel文件
-     * @return 文件ID
-     */
-    @Operation(summary = "文件上传")
-    @PostMapping("/upload")
-    @SaCheckPermission("user-import")
-    public R<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
-        // 这里应该调用文件服务，返回文件ID
-        // 为了演示，我们返回一个模拟的文件ID
-        Map<String, String> result = new HashMap<>();
-        result.put("fileId", "file_" + System.currentTimeMillis());
-        result.put("fileName", file.getOriginalFilename());
-        return R.ok(result);
-    }
-
-    /**
      * 导入用户数据
      *
      * @param file 上传的Excel文件
@@ -272,84 +255,11 @@ public class SysUserController {
      */
     @SysLog("导入用户数据")
     @Operation(summary = "导入用户数据")
-    @PostMapping("/import")
+    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @SaCheckPermission("user-import")
-    public R<String> importUser(@RequestParam("file") MultipartFile file) {
-        String result = service.importUser(file);
+    public R<ImportResultVO> importUser(@RequestParam("file") MultipartFile file) {
+        ImportResultVO result = service.importUser(file);
         return R.ok(result);
-    }
-
-    /**
-     * 异步导入用户数据
-     * 支持EventSource进度监听
-     *
-     * @param request 导入请求
-     * @return 任务ID
-     */
-    @SysLog("异步导入用户数据")
-    @Operation(summary = "异步导入用户数据")
-    @PostMapping("/import/async")
-    @SaCheckPermission("user-import")
-    public R<Map<String, String>> importUserAsync(@RequestBody Map<String, Object> request) {
-        String fileId = (String) request.get("fileId");
-        Boolean enableProgress = (Boolean) request.getOrDefault("enableProgress", false);
-        
-        // 生成任务ID
-        String taskId = "task_" + System.currentTimeMillis();
-        
-        // 这里应该启动异步任务
-        // 为了演示，我们返回任务ID
-        Map<String, String> result = new HashMap<>();
-        result.put("taskId", taskId);
-        result.put("message", "导入任务已创建");
-        
-        return R.ok(result);
-    }
-
-    /**
-     * 查询导入任务状态
-     * 用于EventSource进度监听
-     *
-     * @param taskId 任务ID
-     * @return 任务状态
-     */
-    @Operation(summary = "查询导入任务状态")
-    @GetMapping("/import/status/{taskId}")
-    public R<Map<String, Object>> getImportStatus(@PathVariable String taskId) {
-        // 这里应该查询实际的任务状态
-        // 为了演示，我们返回模拟状态
-        Map<String, Object> status = new HashMap<>();
-        status.put("taskId", taskId);
-        status.put("status", "completed");
-        status.put("progress", 100);
-        status.put("message", "导入完成");
-        
-        // 模拟导入结果
-        Map<String, Object> result = new HashMap<>();
-        result.put("total", 100);
-        result.put("success", 95);
-        result.put("failed", 5);
-        result.put("errors", List.of(
-            Map.of("row", 10, "column", "手机号", "message", "手机号格式不正确"),
-            Map.of("row", 25, "column", "邮箱", "message", "邮箱格式不正确")
-        ));
-        status.put("result", result);
-        
-        return R.ok(status);
-    }
-
-    /**
-     * 取消导入任务
-     *
-     * @param taskId 任务ID
-     * @return 取消结果
-     */
-    @Operation(summary = "取消导入任务")
-    @PostMapping("/import/cancel/{taskId}")
-    public R<Boolean> cancelImport(@PathVariable String taskId) {
-        // 这里应该取消实际的任务
-        // 为了演示，我们返回成功
-        return R.ok(true);
     }
 
     /**
@@ -360,19 +270,7 @@ public class SysUserController {
     @Operation(summary = "下载用户导入模板")
     @GetMapping("/template")
     public void downloadUserTemplate(HttpServletResponse response) {
-        try {
-            service.downloadUserTemplate(response);
-        } catch (Exception e) {
-            log.error("下载用户导入模板失败", e);
-            try {
-                response.reset();
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.setContentType("application/json;charset=UTF-8");
-                response.getWriter().write("{\"code\":500,\"message\":\"模板下载失败：" + e.getMessage() + "\"}");
-            } catch (Exception ex) {
-                log.error("写入错误响应失败", ex);
-            }
-        }
+        simpleExcelUtils.downloadTemplate(response, "用户导入模板", UserImportDTO.class);
     }
 
 }
