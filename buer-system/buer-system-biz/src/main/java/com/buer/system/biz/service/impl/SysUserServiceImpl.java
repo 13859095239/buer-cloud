@@ -10,7 +10,7 @@ import com.buer.common.core.constant.CacheConstants;
 import com.buer.common.core.util.StringUtils;
 import com.buer.common.core.util.U;
 import com.buer.common.core.vo.ImportResultVO;
-import com.buer.common.excel.util.SimpleExcelUtils;
+import com.buer.common.excel.facade.ExcelUtils;
 import com.buer.common.redis.util.CacheUtils;
 import com.buer.common.security.util.SecurityUtils;
 import com.buer.system.api.constants.MenuTypeEnum;
@@ -75,7 +75,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private final SysRoleService sysRoleService;
     private final SysUserPostMapper sysUserPostMapper;
     private final SysUserPostService sysUserPostService;
-    private final SimpleExcelUtils simpleExcelUtils;
+    private final ExcelUtils excelUtils;
 
     /**
      * 通过id查询用户
@@ -399,7 +399,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public void exportUser(HttpServletResponse response, UserQuery userQuery) {
         List<UserExportVO> exportList = getQueryChainByQuery(userQuery).listAs(UserExportVO.class);
-        simpleExcelUtils.exportExcel(response, "用户数据", exportList, UserExportVO.class);
+        excelUtils.exportExcel(response, "用户数据", exportList, UserExportVO.class);
     }
 
     /**
@@ -413,7 +413,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public ImportResultVO importUser(MultipartFile file) {
         try {
             // 1. 使用Excel工具类读取数据
-            List<UserImportDTO> importList = simpleExcelUtils.readExcel(file, UserImportDTO.class);
+            List<UserImportDTO> importList = excelUtils.readExcel(file, UserImportDTO.class);
             if (importList.isEmpty()) {
                 return new ImportResultVO(0, 0, 0, null);
             }

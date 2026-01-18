@@ -6,7 +6,7 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import com.buer.common.core.entity.R;
 import com.buer.common.core.vo.ImportResultVO;
-import com.buer.common.excel.util.SimpleExcelUtils;
+import com.buer.common.excel.facade.ExcelUtils;
 import com.buer.common.log.annotation.SysLog;
 import com.buer.common.security.util.SecurityUtils;
 import com.buer.system.api.dto.*;
@@ -47,7 +47,7 @@ import java.util.List;
 public class SysUserController {
     private static final PasswordEncoder ENCODER = new BCryptPasswordEncoder(12);
     private final SysUserService service;
-    private final SimpleExcelUtils simpleExcelUtils;
+    private final ExcelUtils excelUtils;
 
     /**
      * 通过id查询用户
@@ -270,7 +270,7 @@ public class SysUserController {
     @Operation(summary = "下载用户导入模板")
     @GetMapping("/template")
     public void downloadUserTemplate(HttpServletResponse response) {
-        simpleExcelUtils.downloadTemplate(response, "用户导入模板", UserImportDTO.class);
+        excelUtils.downloadTemplate(response, "用户导入模板", UserImportDTO.class);
     }
 
 }
