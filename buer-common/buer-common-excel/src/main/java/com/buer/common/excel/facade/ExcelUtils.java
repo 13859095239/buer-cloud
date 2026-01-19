@@ -64,7 +64,7 @@ public class ExcelUtils {
      * @param <T>      数据类型
      */
     public <T> void exportExcel(HttpServletResponse response, String fileName, List<T> data, Class<T> clazz) {
-        exportService.exportToResponse(response, fileName, data, clazz, null);
+        exportService.writeExcel(response, fileName, data, clazz, null);
     }
 
     /**
@@ -79,7 +79,7 @@ public class ExcelUtils {
      */
     public <T> void exportExcel(HttpServletResponse response, String fileName, List<T> data,
                                 Class<T> clazz, Consumer<com.alibaba.excel.ExcelWriter> consumer) {
-        exportService.exportToResponse(response, fileName, data, clazz, consumer);
+        exportService.writeExcel(response, fileName, data, clazz, consumer);
     }
 
     /**
@@ -95,7 +95,7 @@ public class ExcelUtils {
      * @param <T>      数据类型
      */
     public <T> void downloadTemplate(HttpServletResponse response, String fileName, Class<T> clazz) {
-        templateService.downloadTemplateToResponse(response, fileName, clazz);
+        templateService.downloadTemplate(response, fileName, clazz);
     }
 
     // ==================== 导入功能 ====================
