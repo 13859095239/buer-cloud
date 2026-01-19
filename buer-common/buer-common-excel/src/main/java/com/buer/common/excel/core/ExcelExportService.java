@@ -49,7 +49,7 @@ public class ExcelExportService {
      * @param <T>      数据类型
      */
     public <T> void writeExcel(HttpServletResponse response, String fileName, List<T> data,
-                                Class<T> clazz, Consumer<ExcelWriter> consumer) {
+                               Class<T> clazz, Consumer<ExcelWriter> consumer) {
         try {
             // 处理空数据
             List<T> exportData = CollUtil.isEmpty(data) ? new ArrayList<>() : data;

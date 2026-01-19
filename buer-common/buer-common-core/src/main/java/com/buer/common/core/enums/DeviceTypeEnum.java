@@ -1,13 +1,10 @@
-package com.buer.common.core.constant;
+package com.buer.common.core.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
  * 设备类型
- *
- * @author zoulan
- * @since 2023-06-08
  */
 @Getter
 @RequiredArgsConstructor

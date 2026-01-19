@@ -11,9 +11,10 @@ import com.buer.common.core.util.StringUtils;
 import com.buer.common.core.util.U;
 import com.buer.common.core.vo.ImportResultVO;
 import com.buer.common.excel.facade.ExcelUtils;
+import com.buer.common.excel.support.ExcelValidatorUtils;
 import com.buer.common.redis.util.CacheUtils;
 import com.buer.common.security.util.SecurityUtils;
-import com.buer.system.api.constants.MenuTypeEnum;
+import com.buer.system.api.enums.MenuTypeEnum;
 import com.buer.system.api.dto.AddUserDTO;
 import com.buer.system.api.dto.UpdateUserDTO;
 import com.buer.system.api.dto.UserImportDTO;
@@ -30,6 +31,7 @@ import com.buer.system.biz.mapper.SysUserMapper;
 import com.buer.system.biz.mapper.SysUserPostMapper;
 import com.buer.system.biz.service.SysMenuService;
 import com.buer.system.biz.service.SysRoleService;
+import com.buer.system.biz.service.SysRoleUserService;
 import com.buer.system.biz.service.SysUserPostService;
 import com.buer.system.biz.service.SysUserService;
 import com.mybatisflex.core.paginate.Page;
@@ -73,9 +75,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private static final PasswordEncoder ENCODER = new BCryptPasswordEncoder(12);
     private final SysMenuService sysMenuService;
     private final SysRoleService sysRoleService;
+    private final SysRoleUserService sysRoleUserService;
     private final SysUserPostMapper sysUserPostMapper;
     private final SysUserPostService sysUserPostService;
     private final ExcelUtils excelUtils;
+    private final ExcelValidatorUtils excelValidator;
 
     /**
      * 通过id查询用户
@@ -399,6 +403,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public void exportUser(HttpServletResponse response, UserQuery userQuery) {
         List<UserExportVO> exportList = getQueryChainByQuery(userQuery).listAs(UserExportVO.class);
+        sysUserPostService.fillUsersPostInfoForExport(exportList);
+        sysRoleUserService.fillUsersRoleInfoForExport(exportList);
         excelUtils.exportExcel(response, "用户数据", exportList, UserExportVO.class);
     }
 
@@ -412,12 +418,20 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Transactional
     public ImportResultVO importUser(MultipartFile file) {
         try {
-            // 1. 使用Excel工具类读取数据
+            // 1. 验证上传文件
+            excelValidator.validateFile(file);
+
+            // 2. 使用Excel工具类读取数据
             List<UserImportDTO> importList = excelUtils.readExcel(file, UserImportDTO.class);
             if (importList.isEmpty()) {
                 return new ImportResultVO(0, 0, 0, null);
             }
-            // 2. 业务数据验证和处理
+
+            // 3. 验证导入数据行数
+            if (!excelValidator.isValidImportRows(importList)) {
+                throw new IllegalArgumentException("导入数据行数超过限制，请分批导入");
+            }
+            // 4. 业务数据验证和处理
             int successCount = 0;
             int failCount = 0;
             List<ImportResultVO.ImportErrorVO> errorList = new ArrayList<>();
@@ -444,7 +458,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 }
             }
 
-            // 3. 返回导入结果
+            // 5. 返回导入结果
             int total = successCount + failCount;
             ImportResultVO result = new ImportResultVO(
                 total,

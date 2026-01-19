@@ -1,7 +1,7 @@
 package com.buer.system.api.entity;
 
 import com.buer.common.core.entity.SuperEntity;
-import com.buer.system.api.constants.MenuTypeEnum;
+import com.buer.system.api.enums.MenuTypeEnum;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.Table;
 import io.swagger.v3.oas.annotations.media.Schema;

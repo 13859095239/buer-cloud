@@ -1,4 +1,4 @@
-package com.buer.system.api.constants;
+package com.buer.system.api.enums;
 
 import com.buer.common.core.entity.BaseEnum;
 import com.mybatisflex.annotation.EnumValue;

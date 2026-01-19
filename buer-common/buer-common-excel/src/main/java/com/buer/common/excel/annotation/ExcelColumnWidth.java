@@ -6,26 +6,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Excel列宽注解
+ * Excel 列宽注解
  * <p>
  * 用于在Excel导出时设置列的宽度和是否自动换行。
- * 该注解需要配合 {@link com.alibaba.excel.annotation.ExcelProperty} 使用，
  * 通过 {@link com.buer.common.excel.handler.ColumnWidthWriteHandler} 处理器自动处理。
  * </p>
  * <p>
- * 使用示例：
- * <pre>
- * {@code
- * @ExcelProperty(value = "用户名", index = 0)
- * @ExcelColumnWidth(width = 20, wrapText = false)
- * private String username;
- * }
- * </pre>
  * </p>
  *
  * @author system
- * @since 2024-01-01
  * @see com.buer.common.excel.handler.ColumnWidthWriteHandler
+ * @since 2024-01-01
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

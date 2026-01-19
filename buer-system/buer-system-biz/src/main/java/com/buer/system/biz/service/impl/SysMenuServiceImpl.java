@@ -7,7 +7,7 @@ import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.buer.common.core.exception.CheckException;
 import com.buer.common.core.util.EnumDescHandler;
-import com.buer.system.api.constants.MenuTypeEnum;
+import com.buer.system.api.enums.MenuTypeEnum;
 import com.buer.system.api.entity.SysMenu;
 import com.buer.system.api.query.MenuQuery;
 import com.buer.system.api.query.MenuTreeQuery;

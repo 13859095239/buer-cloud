@@ -1,6 +1,11 @@
 package com.buer.system.api.vo;
 
+import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.buer.common.core.enums.IsFlagEnum;
+import com.buer.common.core.enums.LockFlagEnum;
+import com.buer.common.excel.converter.BaseEnumConverter;
+import com.buer.system.api.enums.GenderEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -17,6 +22,13 @@ import java.time.LocalDateTime;
 @Data
 @Schema(description = "用户导出VO")
 public class UserExportVO implements Serializable {
+
+    /**
+     * 用户ID（不导出到Excel）
+     */
+    @Schema(description = "用户ID")
+    @ExcelIgnore
+    private String id;
 
     /**
      * 用户名
@@ -43,8 +55,8 @@ public class UserExportVO implements Serializable {
      * 性别
      */
     @Schema(description = "性别")
-    @ExcelProperty("性别")
-    private String gender;
+    @ExcelProperty(value = "性别", converter = BaseEnumConverter.class)
+    private GenderEnum gender;
 
     /**
      * 手机号
@@ -71,15 +83,15 @@ public class UserExportVO implements Serializable {
      * 是否系统管理员
      */
     @Schema(description = "是否系统管理员")
-    @ExcelProperty("是否系统管理员")
-    private String adminFlag;
+    @ExcelProperty(value = "是否系统管理员", converter = BaseEnumConverter.class)
+    private IsFlagEnum adminFlag;
 
     /**
      * 锁定状态
      */
     @Schema(description = "锁定状态")
-    @ExcelProperty("锁定状态")
-    private String lockFlag;
+    @ExcelProperty(value = "锁定状态", converter = BaseEnumConverter.class)
+    private LockFlagEnum lockFlag;
 
     /**
      * 岗位名称
@@ -87,6 +99,13 @@ public class UserExportVO implements Serializable {
     @Schema(description = "岗位名称")
     @ExcelProperty("岗位名称")
     private String postNames;
+
+    /**
+     * 角色名称
+     */
+    @Schema(description = "角色名称")
+    @ExcelProperty("角色名称")
+    private String roleNames;
 
     /**
      * 创建时间

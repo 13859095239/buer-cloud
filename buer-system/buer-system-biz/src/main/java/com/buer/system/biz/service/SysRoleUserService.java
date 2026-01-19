@@ -2,6 +2,8 @@ package com.buer.system.biz.service;
 
 import com.buer.system.api.dto.AddRoleUserDTO;
 import com.buer.system.api.entity.SysRoleUser;
+import com.buer.system.api.vo.UserExportVO;
+import com.buer.system.api.vo.UserVO;
 import com.mybatisflex.core.service.IService;
 
 import java.util.List;
@@ -39,4 +41,18 @@ public interface SysRoleUserService extends IService<SysRoleUser> {
      * @return Boolean
      */
     Boolean deleteRoleUser(Long roleId, String userIds);
+
+    /**
+     * 为传入的用户列表回填角色信息
+     *
+     * @param users 用户列表
+     */
+    void fillUsersRoleInfo(List<UserVO> users);
+
+    /**
+     * 为传入的用户导出列表回填角色信息
+     *
+     * @param users 用户导出列表
+     */
+    void fillUsersRoleInfoForExport(List<UserExportVO> users);
 }

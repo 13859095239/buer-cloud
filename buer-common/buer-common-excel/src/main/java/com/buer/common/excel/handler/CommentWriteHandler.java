@@ -50,7 +50,8 @@ public class CommentWriteHandler implements RowWriteHandler {
     private void initCommentMap() {
         for (Field field : clazz.getDeclaredFields()) {
             ExcelComment excelComment = field.getAnnotation(ExcelComment.class);
-            if (excelComment == null || excelComment.value().isEmpty()) {
+            if (excelComment == null || excelComment.value()
+                .isEmpty()) {
                 continue;
             }
 

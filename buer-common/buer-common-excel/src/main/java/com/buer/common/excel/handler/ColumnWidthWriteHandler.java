@@ -91,10 +91,10 @@ public class ColumnWidthWriteHandler implements SheetWriteHandler, RowWriteHandl
 
     @Override
     public void afterRowDispose(WriteSheetHolder writeSheetHolder,
-                                 WriteTableHolder writeTableHolder,
-                                 Row row,
-                                 Integer relativeRowIndex,
-                                 Boolean isHead) {
+                                WriteTableHolder writeTableHolder,
+                                Row row,
+                                Integer relativeRowIndex,
+                                Boolean isHead) {
         if (row == null || wrapTextMap.isEmpty()) {
             return;
         }

@@ -1,6 +1,7 @@
 package com.buer.system.api.entity;
 
 import com.buer.common.core.entity.SuperEntity;
+import com.buer.common.core.enums.LockFlagEnum;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.Table;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -101,10 +102,10 @@ public class SysUser extends SuperEntity<SysUser> {
     private LocalDateTime lastChangePasswordTime;
 
     /**
-     * 0-正常，1-锁定
+     * 锁定状态：0-正常，1-锁定
      */
-    @Schema(description = "0-正常，1-锁定")
-    private String lockFlag;
+    @Schema(description = "锁定状态：0-正常，1-锁定")
+    private LockFlagEnum lockFlag;
 
     /**
      * 0-正常，1-删除

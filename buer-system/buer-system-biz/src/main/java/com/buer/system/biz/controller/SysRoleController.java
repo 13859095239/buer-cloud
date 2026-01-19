@@ -2,7 +2,7 @@ package com.buer.system.biz.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.hutool.core.util.StrUtil;
-import com.buer.system.api.constants.MenuTypeEnum;
+import com.buer.system.api.enums.MenuTypeEnum;
 import com.buer.common.core.entity.R;
 import com.buer.common.log.annotation.SysLog;
 import com.buer.system.api.dto.AddRoleUserDTO;

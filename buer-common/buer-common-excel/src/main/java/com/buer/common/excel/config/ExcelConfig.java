@@ -32,29 +32,9 @@ public class ExcelConfig {
     private String defaultSheetName = "数据";
 
     /**
-     * 是否启用数据验证
-     */
-    private boolean enableValidation = true;
-
-    /**
-     * 是否启用事务
-     */
-    private boolean enableTransaction = true;
-
-    /**
-     * 支持的Excel文件格式
+     * 支持的 Excel文件格式
      */
     private String[] supportedFormats = {".xlsx", ".xls"};
-
-    /**
-     * 默认日期格式
-     */
-    private String defaultDateFormat = "yyyy-MM-dd HH:mm:ss";
-
-    /**
-     * 默认数字格式
-     */
-    private String defaultNumberFormat = "#,##0.00";
 
     /**
      * 是否启用自动列宽

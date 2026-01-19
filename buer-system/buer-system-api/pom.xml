@@ -33,5 +33,9 @@
             <groupId>com.buer</groupId>
             <artifactId>buer-common-feign</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.buer</groupId>
+            <artifactId>buer-common-excel</artifactId>
+        </dependency>
     </dependencies>
 </project>

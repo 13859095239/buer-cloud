@@ -53,10 +53,10 @@
             <artifactId>mybatis-flex-core</artifactId>
             <scope>compile</scope>
         </dependency>
-        <!-- excel通用组件 -->
-        <dependency>
-            <groupId>com.buer</groupId>
-            <artifactId>buer-common-excel</artifactId>
-        </dependency>
+<!--        &lt;!&ndash; excel通用组件 &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.buer</groupId>-->
+<!--            <artifactId>buer-common-excel</artifactId>-->
+<!--        </dependency>-->
     </dependencies>
 </project>

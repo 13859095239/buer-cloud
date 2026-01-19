@@ -1,7 +1,7 @@
 package com.buer.system.api.vo;
 
 import com.buer.common.core.annotation.EnumMapping;
-import com.buer.system.api.constants.MenuTypeEnum;
+import com.buer.system.api.enums.MenuTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

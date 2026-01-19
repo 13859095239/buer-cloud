@@ -105,8 +105,8 @@ public class ExcelStyleUtils {
     /**
      * 设置单元格边框样式
      *
-     * @param style  单元格样式
-     * @param color  边框颜色
+     * @param style 单元格样式
+     * @param color 边框颜色
      */
     private static void setBorders(WriteCellStyle style, IndexedColors color) {
         short colorIndex = color.getIndex();
@@ -153,7 +153,8 @@ public class ExcelStyleUtils {
              */
             private void setRowHeight(Cell cell, float height) {
                 if (cell != null && cell.getRow() != null) {
-                    cell.getRow().setHeightInPoints(height);
+                    cell.getRow()
+                        .setHeightInPoints(height);
                 }
             }
         };

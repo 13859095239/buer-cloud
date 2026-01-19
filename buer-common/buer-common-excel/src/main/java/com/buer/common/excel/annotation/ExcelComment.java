@@ -6,26 +6,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Excel批注注解
+ * Excel 批注注解
  * <p>
  * 用于在Excel导出时为单元格添加批注说明。
- * 该注解需要配合 {@link com.alibaba.excel.annotation.ExcelProperty} 使用，
  * 通过 {@link com.buer.common.excel.handler.CommentWriteHandler} 处理器自动处理。
- * </p>
- * <p>
- * 使用示例：
- * <pre>
- * {@code
- * @ExcelProperty(value = "用户名", index = 0)
- * @ExcelComment(value = "用户名不能为空，长度必须在2-20个字符之间")
- * private String username;
- * }
- * </pre>
  * </p>
  *
  * @author zoulan
- * @since 2026-01-18
  * @see com.buer.common.excel.handler.CommentWriteHandler
+ * @since 2026-01-18
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

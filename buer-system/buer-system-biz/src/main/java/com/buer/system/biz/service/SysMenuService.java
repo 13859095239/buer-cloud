@@ -1,7 +1,7 @@
 package com.buer.system.biz.service;
 
 import cn.hutool.core.lang.tree.Tree;
-import com.buer.system.api.constants.MenuTypeEnum;
+import com.buer.system.api.enums.MenuTypeEnum;
 import com.buer.system.api.entity.SysMenu;
 import com.buer.system.api.query.MenuQuery;
 import com.buer.system.api.query.MenuTreeQuery;

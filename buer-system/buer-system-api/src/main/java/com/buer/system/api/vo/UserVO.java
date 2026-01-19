@@ -109,9 +109,16 @@ public class UserVO implements Serializable {
      */
     @Schema(description = "岗位id列表")
     private String postIds;
+
     /**
      * 岗位名称列表
      */
     @Schema(description = "岗位名称列表")
     private String postNames;
+
+    /**
+     * 角色名称列表
+     */
+    @Schema(description = "角色名称列表")
+    private String roleNames;
 }

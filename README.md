@@ -127,7 +127,7 @@
 #### 枚举
 
 - 不可以随便增删改的，如：状态、性别
-- 业务枚举放在xx.api.constants，如：com.buer.system.api.constants
+- 业务枚举放在xx.api.constants，如：com.buer.system.api.enums
 - 公共枚举放在com.buer.common.core.constant
 - 具体用法搜索MenuTypeEnum
 
