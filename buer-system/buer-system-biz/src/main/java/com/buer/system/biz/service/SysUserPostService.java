@@ -13,14 +13,14 @@ import java.util.List;
 public interface SysUserPostService extends IService<SysUserPost> {
 
     /**
-     * 为传入的用户列表回填岗位信息（postIds, postNames）
+     * 回填用户岗位信息
      *
      * @param users 用户列表
      */
     void fillUsersPostInfo(List<UserVO> users);
 
     /**
-     * 为传入的用户导出列表回填岗位信息（postNames）
+     * 回填用户导出岗位信息
      *
      * @param users 用户导出列表
      */

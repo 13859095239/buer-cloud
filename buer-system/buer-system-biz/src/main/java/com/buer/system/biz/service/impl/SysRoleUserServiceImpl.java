@@ -2,6 +2,7 @@ package com.buer.system.biz.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.buer.common.core.constant.CommonConstants;
 import com.buer.system.api.dto.AddRoleUserDTO;
 import com.buer.system.api.entity.SysRoleUser;
 import com.buer.system.api.entity.table.SysRoleTableDef;
@@ -71,10 +72,9 @@ public class SysRoleUserServiceImpl extends ServiceImpl<SysRoleUserMapper, SysRo
     @Override
     public List<Long> getRoleIdsByUserId(Long userId) {
         return list(QueryWrapper.create()
-            .select(SysRoleUser::getUserId)
             .eq(SysRoleUser::getUserId, userId))
             .stream()
-            .map(SysRoleUser::getUserId)
+            .map(SysRoleUser::getRoleId)
             .collect(Collectors.toList());
     }
 
@@ -93,7 +93,7 @@ public class SysRoleUserServiceImpl extends ServiceImpl<SysRoleUserMapper, SysRo
     }
 
     /**
-     * 为传入的用户列表回填角色信息
+     * 回填用户角色信息
      *
      * @param users 用户列表
      */
@@ -103,7 +103,7 @@ public class SysRoleUserServiceImpl extends ServiceImpl<SysRoleUserMapper, SysRo
     }
 
     /**
-     * 为传入的用户导出列表回填角色信息
+     * 回填用户导出角色信息
      *
      * @param users 用户导出列表
      */
@@ -116,16 +116,19 @@ public class SysRoleUserServiceImpl extends ServiceImpl<SysRoleUserMapper, SysRo
         if (CollUtil.isEmpty(users)) {
             return;
         }
+        // 获取用户ID列表
         Set<Long> userIds = users.stream().map(getIdFunc).filter(Objects::nonNull).collect(Collectors.toSet());
         if (CollUtil.isEmpty(userIds)) {
             return;
         }
-        Map<Long, List<UserIdRoleInfo>> roleInfoMap = queryChain()
-            .select(SysRoleUserTableDef.SYS_ROLE_USER.USER_ID.as("userId"), SysRoleTableDef.SYS_ROLE.NAME.as("roleName"))
-            .from(SysRoleUserTableDef.SYS_ROLE_USER)
-            .leftJoin(SysRoleTableDef.SYS_ROLE).on(SysRoleUserTableDef.SYS_ROLE_USER.ROLE_ID.eq(SysRoleTableDef.SYS_ROLE.ID))
-            .and(SysRoleUserTableDef.SYS_ROLE_USER.USER_ID.in(userIds))
-            .listAs(UserIdRoleInfo.class).stream()
+        // 分批查询角色信息
+        Map<Long, List<UserIdRoleInfo>> roleInfoMap = CollUtil.split(new ArrayList<>(userIds), CommonConstants.DB_QUERY_BATCH_SIZE).stream()
+            .flatMap(batch -> queryChain()
+                .select(SysRoleUserTableDef.SYS_ROLE_USER.USER_ID.as("userId"), SysRoleTableDef.SYS_ROLE.NAME.as("roleName"))
+                .from(SysRoleUserTableDef.SYS_ROLE_USER)
+                .leftJoin(SysRoleTableDef.SYS_ROLE).on(SysRoleUserTableDef.SYS_ROLE_USER.ROLE_ID.eq(SysRoleTableDef.SYS_ROLE.ID))
+                .and(SysRoleUserTableDef.SYS_ROLE_USER.USER_ID.in(batch))
+                .listAs(UserIdRoleInfo.class).stream())
             .collect(Collectors.groupingBy(UserIdRoleInfo::getUserId));
         users.forEach(user -> {
             Long userId = getIdFunc.apply(user);
@@ -139,7 +142,13 @@ public class SysRoleUserServiceImpl extends ServiceImpl<SysRoleUserMapper, SysRo
 
     @Data
     private static class UserIdRoleInfo {
+        /**
+         * 用户ID
+         */
         private Long userId;
+        /**
+         * 角色名称
+         */
         private String roleName;
     }
 }

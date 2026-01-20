@@ -30,4 +30,9 @@ public interface CommonConstants {
      */
     Integer SUCCESS = 0;
 
+    /**
+     * 数据库查询批量处理时的批次大小，避免IN子句参数过多
+     */
+    int DB_QUERY_BATCH_SIZE = 1000;
+
 }

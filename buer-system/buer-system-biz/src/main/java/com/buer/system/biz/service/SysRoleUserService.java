@@ -43,14 +43,14 @@ public interface SysRoleUserService extends IService<SysRoleUser> {
     Boolean deleteRoleUser(Long roleId, String userIds);
 
     /**
-     * 为传入的用户列表回填角色信息
+     * 回填用户角色信息
      *
      * @param users 用户列表
      */
     void fillUsersRoleInfo(List<UserVO> users);
 
     /**
-     * 为传入的用户导出列表回填角色信息
+     * 回填用户导出角色信息
      *
      * @param users 用户导出列表
      */
