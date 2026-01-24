@@ -1,12 +1,15 @@
 package com.buer.common.excel.facade;
 
+import com.buer.common.core.exception.CheckException;
 import com.buer.common.excel.config.ExcelConfig;
 import com.buer.common.excel.core.ExcelExportService;
 import com.buer.common.excel.core.ExcelImportService;
 import com.buer.common.excel.core.ExcelTemplateService;
+import com.buer.common.excel.support.ExcelValidatorUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.List;
@@ -50,6 +53,7 @@ public class ExcelUtils {
     private final ExcelImportService importService;
     private final ExcelTemplateService templateService;
     private final ExcelConfig excelConfig;
+    private final ExcelValidatorUtils excelValidator;
 
     /**
      * 导出Excel到响应流
@@ -123,8 +127,38 @@ public class ExcelUtils {
      * @param <T>   数据类型
      * @return 数据列表
      */
-    public <T> List<T> readExcel(org.springframework.web.multipart.MultipartFile file, Class<T> clazz) {
+    public <T> List<T> readExcel(MultipartFile file, Class<T> clazz) {
         return importService.importFromFile(file, clazz);
+    }
+
+    /**
+     * 读取Excel并完成导入前置校验（文件合法性、读取、行数限制等）
+     * <p>
+     * 整合了文件验证、数据读取、空数据检查和行数验证的完整流程，简化业务代码调用。
+     * </p>
+     *
+     * @param file  上传的Excel文件
+     * @param clazz 数据类
+     * @param <T>   数据类型
+     * @return 数据列表（非空）
+     * @throws CheckException 如果文件验证失败、数据为空或行数超过限制
+     */
+    public <T> List<T> readExcelWithValidate(MultipartFile file, Class<T> clazz) {
+        // 1. 验证上传文件（格式、大小等）
+        excelValidator.validateFile(file);
+
+        // 2. 读取Excel数据
+        List<T> importList = importService.importFromFile(file, clazz);
+        if (importList == null || importList.isEmpty()) {
+            throw new CheckException("导入文件为空或未包含有效数据，请检查文件内容");
+        }
+
+        // 3. 验证导入数据行数
+        if (!excelValidator.isValidImportRows(importList)) {
+            throw new CheckException("导入数据行数超过限制，请分批导入");
+        }
+
+        return importList;
     }
 
 

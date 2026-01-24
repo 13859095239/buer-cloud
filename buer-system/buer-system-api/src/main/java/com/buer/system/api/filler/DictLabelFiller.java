@@ -1,6 +1,6 @@
 package com.buer.system.api.filler;
 
-import com.buer.common.core.util.IdToLabelFiller;
+import com.buer.common.core.util.filler.IdToLabelFiller;
 import com.buer.system.api.feign.RemoteDictService;
 import com.buer.system.api.vo.DictItemLabelVO;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * DictLabelFiller
+ * 字典标签回填器
  * <p>
  * 功能：
  * 1. 单字段回填（name + theme）
@@ -44,9 +44,9 @@ public class DictLabelFiller {
                               Function<T, Object> idGetter,
                               BiConsumer<T, String> nameSetter,
                               BiConsumer<T, String> themeSetter) {
-
         IdToLabelFiller.chain(list, ids -> fetchDictMap(Set.of(dictKey)))
-            .multiField(obj -> wrapWithDictKey(dictKey, idGetter.apply(obj)),
+            .multiField(
+                obj -> wrapWithDictKey(dictKey, idGetter.apply(obj)),
                 (t, dto) -> {
                     if (nameSetter != null) {
                         nameSetter.accept(t, dto.getName());
@@ -70,7 +70,6 @@ public class DictLabelFiller {
     @SafeVarargs
     public final <T> void fillMulti(List<T> list,
                                     Triple<Function<T, Object>, String, BiConsumer<T, DictItemLabelVO>>... rules) {
-
         // 收集所有 dictKey
         Set<String> dictKeys = Arrays.stream(rules)
             .map(Triple::getMiddle)
@@ -80,8 +79,9 @@ public class DictLabelFiller {
             IdToLabelFiller.chain(list, ids -> fetchDictMap(dictKeys));
 
         for (Triple<Function<T, Object>, String, BiConsumer<T, DictItemLabelVO>> rule : rules) {
-            builder.multiField(obj -> wrapWithDictKey(rule.getMiddle(), rule.getLeft()
-                .apply(obj)), rule.getRight());
+            builder.multiField(
+                obj -> wrapWithDictKey(rule.getMiddle(), rule.getLeft().apply(obj)),
+                rule.getRight());
         }
 
         builder.fill();
@@ -91,10 +91,7 @@ public class DictLabelFiller {
      * 拼接 dictKey:value，保证唯一性
      */
     private String wrapWithDictKey(String dictKey, Object value) {
-        if (value == null) {
-            return null;
-        }
-        return dictKey + ":" + value.toString();
+        return value == null ? null : dictKey + ":" + value;
     }
 
     /**
@@ -108,11 +105,9 @@ public class DictLabelFiller {
             return Collections.emptyMap();
         }
 
-        // 调用远程字典服务（假设支持一次传多个 key）
-        List<DictItemLabelVO> list = remoteDictService.listDictLabelByDictKeys(List.copyOf(dictKeys))
-            .getData();
-
-        return list.stream()
+        return remoteDictService.listDictLabelByDictKeys(List.copyOf(dictKeys))
+            .getData()
+            .stream()
             .collect(Collectors.toMap(
                 item -> item.getDictKey() + ":" + item.getValue(),
                 item -> item

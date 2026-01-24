@@ -96,12 +96,12 @@ public class ExcelValidatorUtils {
         String fileName = file.getOriginalFilename();
         if (!isValidExcelFile(fileName)) {
             throw new IllegalArgumentException(
-                String.format("文件格式不正确，仅支持%s格式", String.join("、", excelConfig.getSupportedFormats())));
+                StrUtil.format("文件格式不正确，仅支持{}格式", String.join("、", excelConfig.getSupportedFormats())));
         }
 
         if (!isValidFileSize(file)) {
             throw new IllegalArgumentException(
-                String.format("文件大小超过限制，最大允许%dMB", excelConfig.getMaxFileSize()));
+                StrUtil.format("文件大小超过限制，最大允许{}MB", excelConfig.getMaxFileSize()));
         }
     }
 }

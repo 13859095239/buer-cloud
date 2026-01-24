@@ -1,5 +1,13 @@
 package com.buer.common.excel.support;
 
+import cn.hutool.core.util.StrUtil;
+import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 /**
  * Excel响应工具类
  * <p>
@@ -9,13 +17,6 @@ package com.buer.common.excel.support;
  * @author zoulan
  * @since 2026-01-18
  */
-
-import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 import static com.buer.common.excel.constant.ExcelConstants.CONTENT_TYPE;
 import static com.buer.common.excel.constant.ExcelConstants.FILE_EXTENSION;
@@ -66,7 +67,7 @@ public final class ExcelResponseUtils {
 
             // 同时设置两种格式的Content-Disposition头，确保兼容性
             response.setHeader("Content-Disposition",
-                String.format("attachment; filename=\"%s%s\"; filename*=UTF-8''%s%s",
+                StrUtil.format("attachment; filename=\"{}{}\"; filename*=UTF-8''{}{}",
                     encodedFileName, FILE_EXTENSION, encodedFileName, FILE_EXTENSION));
 
         } catch (Exception e) {

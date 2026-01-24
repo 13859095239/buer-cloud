@@ -11,7 +11,6 @@ import com.buer.common.core.util.StringUtils;
 import com.buer.common.core.util.U;
 import com.buer.common.core.vo.ImportResultVO;
 import com.buer.common.excel.facade.ExcelUtils;
-import com.buer.common.excel.support.ExcelValidatorUtils;
 import com.buer.common.redis.util.CacheUtils;
 import com.buer.common.security.util.SecurityUtils;
 import com.buer.system.api.enums.MenuTypeEnum;
@@ -79,7 +78,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private final SysUserPostMapper sysUserPostMapper;
     private final SysUserPostService sysUserPostService;
     private final ExcelUtils excelUtils;
-    private final ExcelValidatorUtils excelValidator;
 
     /**
      * 通过id查询用户
@@ -417,63 +415,39 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     @Transactional
     public ImportResultVO importUser(MultipartFile file) {
-        try {
-            // 1. 验证上传文件
-            excelValidator.validateFile(file);
-
-            // 2. 使用Excel工具类读取数据
-            List<UserImportDTO> importList = excelUtils.readExcel(file, UserImportDTO.class);
-            if (importList.isEmpty()) {
-                return new ImportResultVO(0, 0, 0, null);
+        List<UserImportDTO> importList = excelUtils.readExcelWithValidate(file, UserImportDTO.class);
+        // 第一阶段：验证所有数据，收集错误
+        List<ImportResultVO.ImportErrorVO> errorList = new ArrayList<>();
+        for (int i = 0; i < importList.size(); i++) {
+            UserImportDTO importDTO = importList.get(i);
+            int rowNum = i + 2; // Excel 第1行是表头
+            try {
+                SysUser sysUser = new SysUser();
+                BeanUtil.copyProperties(importDTO, sysUser);
+                checkUnique(sysUser);
+            } catch (Exception e) {
+                String username = importDTO == null ? null : importDTO.getUsername();
+                String errorMessage = StrUtil.format("行号：{}，用户名：{}，原因：{}", rowNum, username, e.getMessage());
+                ImportResultVO.ImportErrorVO error = new ImportResultVO.ImportErrorVO(rowNum, errorMessage);
+                errorList.add(error);
+                log.warn("用户导入验证失败，行号：{}，username：{}，原因：{}", rowNum, username, e.getMessage());
             }
-
-            // 3. 验证导入数据行数
-            if (!excelValidator.isValidImportRows(importList)) {
-                throw new IllegalArgumentException("导入数据行数超过限制，请分批导入");
-            }
-            // 4. 业务数据验证和处理
-            int successCount = 0;
-            int failCount = 0;
-            List<ImportResultVO.ImportErrorVO> errorList = new ArrayList<>();
-
-            for (int i = 0; i < importList.size(); i++) {
-                UserImportDTO importDTO = importList.get(i);
-                try {
-                    SysUser sysUser = new SysUser();
-                    BeanUtil.copyProperties(importDTO, sysUser);
-                    checkUnique(sysUser);
-                    // 保存用户数据
-                    //saveImportUser(importDTO);
-                    successCount++;
-
-                } catch (Exception e) {
-                    failCount++;
-                    ImportResultVO.ImportErrorVO error = new ImportResultVO.ImportErrorVO(
-                        i + 2, null, e.getMessage(), null
-                    );
-                    errorList.add(error);
-
-                    log.warn("用户导入失败，行号：{}，数据：{}，错误：{}",
-                        i + 2, importDTO.getUsername(), e.getMessage());
-                }
-            }
-
-            // 5. 返回导入结果
-            int total = successCount + failCount;
-            ImportResultVO result = new ImportResultVO(
-                total,
-                successCount,
-                failCount,
-                errorList.isEmpty() ? null : errorList
-            );
-
-            log.info("用户数据导入完成，成功：{}条，失败：{}条", successCount, failCount);
-            return result;
-
-        } catch (Exception e) {
-            log.error("用户数据导入失败，错误信息：{}", e.getMessage(), e);
-            throw new RuntimeException("用户数据导入失败：" + e.getMessage(), e);
         }
+
+        // 如果有验证错误，返回错误列表，不执行导入
+        if (!errorList.isEmpty()) {
+            return new ImportResultVO(importList.size(), 0, errorList.size(), errorList);
+        }
+
+        // 第二阶段：全部验证通过，执行导入操作
+        for (UserImportDTO importDTO : importList) {
+            SysUser sysUser = new SysUser();
+            BeanUtil.copyProperties(importDTO, sysUser);
+            // 保存用户数据
+            // saveImportUser(importDTO);
+        }
+
+        return new ImportResultVO(importList.size(), importList.size(), 0, null);
     }
 
 }

@@ -60,21 +60,10 @@ public class ImportResultVO implements Serializable {
         private Integer row;
 
         /**
-         * 列名
-         */
-        @Schema(description = "列名")
-        private String column;
-
-        /**
          * 错误信息
          */
         @Schema(description = "错误信息")
         private String message;
 
-        /**
-         * 数据值
-         */
-        @Schema(description = "数据值")
-        private String value;
     }
 }
