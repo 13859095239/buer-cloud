@@ -5,6 +5,7 @@ import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.buer.common.core.constant.CacheConstants;
 import com.buer.common.core.util.StringUtils;
@@ -87,8 +88,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      */
     @Override
     public UserVO getUserById(Long id) {
-        UserVO entity = getQueryChain().and(SYS_USER.ID.eq(id))
-            .oneAs(UserVO.class);
+        UserVO entity = getQueryChain().and(SYS_USER.ID.eq(id)).oneAs(UserVO.class);
         // 回填用户岗位信息（postIds, postNames）
         sysUserPostService.fillUsersPostInfo(Collections.singletonList(entity));
         return entity;
@@ -113,15 +113,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         save(model);
         // 保存用户岗位信息
         List<String> postIdList = U.getIdListByStringWithDefault(addUserDTO.getPostIds());
-        Opt.ofBlankAble(postIdList)
-            .ifPresent(postIds -> postIdList.stream()
-                .map(postId -> {
-                    SysUserPost userPost = new SysUserPost();
-                    userPost.setUserId(model.getId());
-                    userPost.setPostId(Long.valueOf(postId));
-                    return userPost;
-                })
-                .forEach(sysUserPostMapper::insert));
+        Opt.ofBlankAble(postIdList).ifPresent(postIds -> postIdList.stream().map(postId -> {
+            SysUserPost userPost = new SysUserPost();
+            userPost.setUserId(model.getId());
+            userPost.setPostId(Long.valueOf(postId));
+            return userPost;
+        }).forEach(sysUserPostMapper::insert));
         return true;
     }
 
@@ -139,19 +136,15 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         BeanUtil.copyProperties(userDTO, model);
 
         // 删除用户岗位信息
-        sysUserPostMapper.deleteByQuery(QueryWrapper.create()
-            .eq(SysUserPost::getUserId, userDTO.getId()));
+        sysUserPostMapper.deleteByQuery(QueryWrapper.create().eq(SysUserPost::getUserId, userDTO.getId()));
         // 保存用户岗位信息
         List<String> postIdList = U.getIdListByStringWithDefault(userDTO.getPostIds());
-        Opt.ofBlankAble(userDTO.getPostIds())
-            .ifPresent(postIds -> postIdList.stream()
-                .map(postId -> {
-                    SysUserPost userPost = new SysUserPost();
-                    userPost.setUserId(userDTO.getId());
-                    userPost.setPostId(Long.valueOf(postId));
-                    return userPost;
-                })
-                .forEach(sysUserPostMapper::insert));
+        Opt.ofBlankAble(userDTO.getPostIds()).ifPresent(postIds -> postIdList.stream().map(postId -> {
+            SysUserPost userPost = new SysUserPost();
+            userPost.setUserId(userDTO.getId());
+            userPost.setPostId(Long.valueOf(postId));
+            return userPost;
+        }).forEach(sysUserPostMapper::insert));
         return updateById(model);
     }
 
@@ -197,23 +190,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      * 获取QueryChain对象
      */
     QueryChain<SysUser> getQueryChain() {
-        return queryChain().select(SYS_USER.ALL_COLUMNS,
-                SYS_DEPT.NAME.as("deptName"))
-            .leftJoin(SYS_DEPT)
-            .on(SYS_USER.DEPT_ID.eq(SYS_DEPT.ID));
+        return queryChain().select(SYS_USER.ALL_COLUMNS, SYS_DEPT.NAME.as("deptName")).leftJoin(SYS_DEPT).on(SYS_USER.DEPT_ID.eq(SYS_DEPT.ID));
     }
 
     /**
      * 通过userQuery获取QueryChain对象
      */
     private QueryChain<SysUser> getQueryChainByQuery(UserQuery entity) {
-        return getQueryChain()
-            .and(SYS_USER.ID.in(StringUtils.arrayBySplit(entity.getUserIds())))
-            .and(SYS_USER.USERNAME.like(entity.getUsername()))
-            .and(SYS_USER.NICKNAME.like(entity.getNickname()))
-            .and(SYS_USER.DEPT_ID.eq(entity.getDeptId()))
-            .and(SYS_USER.PHONE.eq(entity.getPhone()))
-            .orderBy(SYS_USER.ID.asc(), SYS_USER.CREATE_TIME.desc());
+        return getQueryChain().and(SYS_USER.ID.in(StringUtils.arrayBySplit(entity.getUserIds()))).and(SYS_USER.USERNAME.like(entity.getUsername())).and(SYS_USER.NICKNAME.like(entity.getNickname())).and(SYS_USER.DEPT_ID.eq(entity.getDeptId())).and(SYS_USER.PHONE.eq(entity.getPhone())).orderBy(SYS_USER.ID.asc(), SYS_USER.CREATE_TIME.desc());
     }
 
     /**
@@ -228,14 +212,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         // 忽略租户条件
         TenantManager.ignoreTenantCondition();
         // 登录验证时，忽略租户
-        SysUser user = getOne(QueryWrapper.create()
-            .eq(SysUser::getUsername, username));
+        SysUser user = getOne(QueryWrapper.create().eq(SysUser::getUsername, username));
         Assert.notNull(user, "用户不存在");
         UserForLoginVO vo = new UserForLoginVO();
         List<SysRole> roles = sysRoleService.getRolesByUserId(user.getId());
-        List<Long> roleIds = roles.stream()
-            .map(SysRole::getId)
-            .collect(Collectors.toList());
+        List<Long> roleIds = roles.stream().map(SysRole::getId).collect(Collectors.toList());
         vo.setRoles(ArrayUtil.toArray(roleIds, Long.class));
         List<SysMenu> sysMenuList;
         if ("1".equals(user.getAdminFlag())) {
@@ -244,13 +225,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         } else {
             sysMenuList = sysMenuService.getMenuListByRole(roleIds, ListUtil.toList(MenuTypeEnum.PATH, MenuTypeEnum.MENU, MenuTypeEnum.PERMISSION));
         }
-        List<String> permissions = sysMenuList.stream()
-            .filter(p -> MenuTypeEnum.PERMISSION
-                .equals(p.getMenuType()))
-            .map(SysMenu::getPermission)
-            .collect(Collectors.toList());
-        vo.setUser(user)
-            .setPermissions(ArrayUtil.toArray(permissions, String.class));
+        List<String> permissions = sysMenuList.stream().filter(p -> MenuTypeEnum.PERMISSION.equals(p.getMenuType())).map(SysMenu::getPermission).collect(Collectors.toList());
+        vo.setUser(user).setPermissions(ArrayUtil.toArray(permissions, String.class));
         // 恢复租户条件
         TenantManager.restoreTenantCondition();
         return vo;
@@ -264,18 +240,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      */
     @Override
     public UserInfoVO getUserInfo() {
-        Long userId = SecurityUtils.getUser()
-            .getId();
+        Long userId = SecurityUtils.getUser().getId();
         return getUserInfo(userId);
     }
 
     private UserInfoVO getUserInfo(Long userId) {
-        SysUser user = getOne(QueryWrapper.create()
-            .eq(SysUser::getId, userId));
+        SysUser user = getOne(QueryWrapper.create().eq(SysUser::getId, userId));
         List<SysRole> roles = sysRoleService.getRolesByUserId(user.getId());
-        List<Long> roleIds = roles.stream()
-            .map(SysRole::getId)
-            .collect(Collectors.toList());
+        List<Long> roleIds = roles.stream().map(SysRole::getId).collect(Collectors.toList());
         UserInfoVO vo = new UserInfoVO();
         vo.setRoles(roleIds);
         List<SysMenu> sysMenuList;
@@ -286,18 +258,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             sysMenuList = sysMenuService.getMenuListByRole(roleIds, ListUtil.toList(MenuTypeEnum.PATH, MenuTypeEnum.MENU, MenuTypeEnum.PERMISSION));
         }
 
-        List<SysMenu> menus = sysMenuList.stream()
-            .filter(p -> Arrays.asList(MenuTypeEnum.PATH, MenuTypeEnum.MENU, MenuTypeEnum.PERMISSION)
-                .contains(p.getMenuType()))
-            .collect(Collectors.toList());
-        List<String> permissions = sysMenuList.stream()
-            .filter(p -> MenuTypeEnum.PERMISSION
-                .equals(p.getMenuType()))
-            .map(SysMenu::getPermission)
-            .collect(Collectors.toList());
-        vo.setUser(user)
-            .setMenus(menus)
-            .setPermissions(permissions);
+        List<SysMenu> menus = sysMenuList.stream().filter(p -> Arrays.asList(MenuTypeEnum.PATH, MenuTypeEnum.MENU, MenuTypeEnum.PERMISSION).contains(p.getMenuType())).collect(Collectors.toList());
+        List<String> permissions = sysMenuList.stream().filter(p -> MenuTypeEnum.PERMISSION.equals(p.getMenuType())).map(SysMenu::getPermission).collect(Collectors.toList());
+        vo.setUser(user).setMenus(menus).setPermissions(permissions);
         return vo;
     }
 
@@ -309,10 +272,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      */
     @Override
     public Boolean resetPassword(UserResetPasswordDTO userResetPasswordDTO) {
-        return UpdateChain.of(SysUser.class)
-            .set(SysUser::getPassword, ENCODER.encode(userResetPasswordDTO.getNewPassword()))
-            .eq(SysUser::getId, userResetPasswordDTO.getId())
-            .update();
+        return UpdateChain.of(SysUser.class).set(SysUser::getPassword, ENCODER.encode(userResetPasswordDTO.getNewPassword())).eq(SysUser::getId, userResetPasswordDTO.getId()).update();
     }
 
     /**
@@ -326,14 +286,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public Page<UserVO> pageUserByRole(Page<UserVO> page, RoleUserQuery roleUserQuery) {
         UserQuery userQuery = new UserQuery();
         BeanUtil.copyProperties(roleUserQuery, userQuery);
-        QueryWrapper roleUserQueryWrapper = QueryChain.create()
-            .from(SYS_ROLE_USER)
-            .select(SYS_ROLE_USER.USER_ID)
-            .and(SYS_ROLE_USER.ROLE_ID.eq(roleUserQuery.getRoleId()));
-        return getQueryChainByQuery(userQuery)
-            .and(SYS_USER.ID.in(roleUserQueryWrapper, roleUserQuery.getEqualsRoleId()))
-            .and(SYS_USER.ID.notIn(roleUserQueryWrapper, !roleUserQuery.getEqualsRoleId()))
-            .pageAs(page, UserVO.class);
+        QueryWrapper roleUserQueryWrapper = QueryChain.create().from(SYS_ROLE_USER).select(SYS_ROLE_USER.USER_ID).and(SYS_ROLE_USER.ROLE_ID.eq(roleUserQuery.getRoleId()));
+        return getQueryChainByQuery(userQuery).and(SYS_USER.ID.in(roleUserQueryWrapper, roleUserQuery.getEqualsRoleId())).and(SYS_USER.ID.notIn(roleUserQueryWrapper, !roleUserQuery.getEqualsRoleId())).pageAs(page, UserVO.class);
     }
 
     /**
@@ -348,14 +302,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         UserQuery userQuery = new UserQuery();
         BeanUtil.copyProperties(teamUserQuery, userQuery);
         // 子查询team表
-        QueryWrapper teamQueryWrapper = QueryChain.create()
-            .from(SYS_TEAM_USER)
-            .select(SYS_TEAM_USER.USER_ID)
-            .and(SYS_TEAM_USER.TEAM_ID.eq(teamUserQuery.getTeamId()));
-        return getQueryChainByQuery(userQuery)
-            .and(SYS_USER.ID.in(teamQueryWrapper, teamUserQuery.getEqualsTeamId()))
-            .and(SYS_USER.ID.notIn(teamQueryWrapper, !teamUserQuery.getEqualsTeamId()))
-            .pageAs(page, UserVO.class);
+        QueryWrapper teamQueryWrapper = QueryChain.create().from(SYS_TEAM_USER).select(SYS_TEAM_USER.USER_ID).and(SYS_TEAM_USER.TEAM_ID.eq(teamUserQuery.getTeamId()));
+        return getQueryChainByQuery(userQuery).and(SYS_USER.ID.in(teamQueryWrapper, teamUserQuery.getEqualsTeamId())).and(SYS_USER.ID.notIn(teamQueryWrapper, !teamUserQuery.getEqualsTeamId())).pageAs(page, UserVO.class);
     }
 
     /**
@@ -369,9 +317,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if (userIds.isEmpty()) {
             return new ArrayList<>();
         }
-        return queryChain().select(SYS_USER.ID, SYS_USER.USERNAME, SYS_USER.NICKNAME, SYS_USER.PHONE)
-            .and(SYS_USER.ID.in(userIds))
-            .listAs(UserLabelVO.class);
+        return queryChain().select(SYS_USER.ID, SYS_USER.USERNAME, SYS_USER.NICKNAME, SYS_USER.PHONE).and(SYS_USER.ID.in(userIds)).listAs(UserLabelVO.class);
     }
 
     /**
@@ -380,15 +326,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      * @param sysUser sysUser
      */
     void checkUnique(SysUser sysUser) {
-        boolean existsName = exists(QueryWrapper.create()
-            .eq(SysUser::getUsername, sysUser.getUsername())
-            .ne(SysUser::getId, sysUser.getId(), sysUser.getId() != null)
-        );
+        boolean existsName = exists(QueryWrapper.create().eq(SysUser::getUsername, sysUser.getUsername()).ne(SysUser::getId, sysUser.getId(), sysUser.getId() != null));
         Assert.isFalse(existsName, "保存失败，用户名称重复");
-        boolean existsPhone = exists(QueryWrapper.create()
-            .eq(SysUser::getPhone, sysUser.getPhone())
-            .ne(SysUser::getId, sysUser.getId(), sysUser.getId() != null)
-        );
+        boolean existsPhone = exists(QueryWrapper.create().eq(SysUser::getPhone, sysUser.getPhone()).ne(SysUser::getId, sysUser.getId(), sysUser.getId() != null));
         Assert.isFalse(existsPhone, "保存失败，手机号重复");
     }
 
@@ -419,19 +359,20 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         // 第一阶段：验证所有数据，收集错误
         List<ImportResultVO.ImportErrorVO> errorList = new ArrayList<>();
         for (int i = 0; i < importList.size(); i++) {
+            String errorMessage = "";
             UserImportDTO importDTO = importList.get(i);
             int rowNum = i + 2; // Excel 第1行是表头
-            try {
-                SysUser sysUser = new SysUser();
-                BeanUtil.copyProperties(importDTO, sysUser);
-                checkUnique(sysUser);
-            } catch (Exception e) {
-                String username = importDTO == null ? null : importDTO.getUsername();
-                String errorMessage = StrUtil.format("行号：{}，用户名：{}，原因：{}", rowNum, username, e.getMessage());
-                ImportResultVO.ImportErrorVO error = new ImportResultVO.ImportErrorVO(rowNum, errorMessage);
-                errorList.add(error);
-                log.warn("用户导入验证失败，行号：{}，username：{}，原因：{}", rowNum, username, e.getMessage());
+            SysUser sysUser = new SysUser();
+            boolean existsName = exists(QueryWrapper.create().eq(SysUser::getUsername, sysUser.getUsername()).ne(SysUser::getId, sysUser.getId(), sysUser.getId() != null));
+            if (!existsName) {
+                errorMessage += "用户名称重复;";
             }
+            boolean existsPhone = exists(QueryWrapper.create().eq(SysUser::getPhone, sysUser.getPhone()).ne(SysUser::getId, sysUser.getId(), sysUser.getId() != null));
+            if (!existsPhone) {
+                errorMessage += "手机号重复;";
+            }
+            ImportResultVO.ImportErrorVO error = new ImportResultVO.ImportErrorVO(rowNum, errorMessage);
+            errorList.add(error);
         }
 
         // 如果有验证错误，返回错误列表，不执行导入
@@ -444,7 +385,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             SysUser sysUser = new SysUser();
             BeanUtil.copyProperties(importDTO, sysUser);
             // 保存用户数据
-            // saveImportUser(importDTO);
+            save(sysUser);
         }
 
         return new ImportResultVO(importList.size(), importList.size(), 0, null);

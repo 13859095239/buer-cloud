@@ -45,30 +45,49 @@ public class CommentWriteHandler implements RowWriteHandler {
      * <p>
      * 根据 {@link ExcelProperty} 的 value 数组长度计算最后一行表头的索引。
      * 例如：value = {"用户信息", "用户名"}，数组长度为2，最后一行索引为 2-1=1
+     * 只考虑有 @ExcelProperty 注解的字段，这些字段才会被输出到 Excel。
      * </p>
      */
     private void initCommentMap() {
+        // 第一步：建立所有 @ExcelProperty 字段的索引映射
+        // key: 字段对象，value: 该字段在Excel中的列索引
+        Map<Field, Integer> excelFieldIndexMap = new HashMap<>();
+        int autoIndex = 0;
         for (Field field : clazz.getDeclaredFields()) {
-            ExcelComment excelComment = field.getAnnotation(ExcelComment.class);
-            if (excelComment == null || excelComment.value()
-                .isEmpty()) {
-                continue;
-            }
-
             ExcelProperty excelProperty = field.getAnnotation(ExcelProperty.class);
             if (excelProperty == null) {
                 continue;
             }
 
             int index = excelProperty.index();
-            if (index >= 0) {
-                // 根据 value 数组长度计算最后一行表头的索引
-                String[] values = excelProperty.value();
-                int lastHeadRowIndex = values.length > 0 ? values.length - 1 : 0;
-
-                commentTextMap.put(index, excelComment.value());
-                commentRowIndexMap.put(index, lastHeadRowIndex);
+            if (index < 0) {
+                index = autoIndex;
             }
+            excelFieldIndexMap.put(field, index);
+            autoIndex++;
+        }
+
+        // 第二步：为有 @ExcelComment 的字段添加批注映射
+        for (Field field : clazz.getDeclaredFields()) {
+            ExcelComment excelComment = field.getAnnotation(ExcelComment.class);
+            if (excelComment == null || excelComment.value().isEmpty()) {
+                continue;
+            }
+
+            // 查找该字段在 Excel 中的列索引
+            Integer columnIndex = excelFieldIndexMap.get(field);
+            if (columnIndex == null) {
+                // 该字段没有 @ExcelProperty，不会被输出到 Excel，因此不需要添加批注
+                continue;
+            }
+
+            // 获取表头最后一行的索引
+            ExcelProperty excelProperty = field.getAnnotation(ExcelProperty.class);
+            String[] values = excelProperty.value();
+            int lastHeadRowIndex = values.length > 0 ? values.length - 1 : 0;
+
+            commentTextMap.put(columnIndex, excelComment.value());
+            commentRowIndexMap.put(columnIndex, lastHeadRowIndex);
         }
     }
 
@@ -106,15 +125,19 @@ public class CommentWriteHandler implements RowWriteHandler {
     private void addComment(WriteSheetHolder writeSheetHolder, Cell cell, String commentText) {
         Sheet sheet = writeSheetHolder.getSheet();
         Workbook workbook = sheet.getWorkbook();
-        Drawing<?> drawing = sheet.createDrawingPatriarch();
+        // 获取现有的 Drawing 对象，如果不存在才创建新的
+        Drawing<?> drawing = sheet.getDrawingPatriarch();
+        if (drawing == null) {
+            drawing = sheet.createDrawingPatriarch();
+        }
         CreationHelper factory = workbook.getCreationHelper();
 
         // 创建批注锚点
         ClientAnchor anchor = factory.createClientAnchor();
         anchor.setCol1(cell.getColumnIndex());
-        anchor.setCol2(cell.getColumnIndex() + 1);
+        anchor.setCol2(cell.getColumnIndex() + 3);
         anchor.setRow1(cell.getRowIndex());
-        anchor.setRow2(cell.getRowIndex() + 3);
+        anchor.setRow2(cell.getRowIndex() + 4);
         anchor.setDx1(0);
         anchor.setDy1(0);
         anchor.setDx2(0);
